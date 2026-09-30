@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Backend (Spring Boot)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.hospital.billing.HospitalBillingApplication" />
+    <module name="hospital-billing-backend" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend" />
+    <envs>
+      <env name="DB_URL" value="jdbc:postgresql://localhost:5432/hospital_billing" />
+      <env name="DB_USERNAME" value="postgres" />
+      <env name="DB_PASSWORD" value="postgres" />
+      <env name="AI_ENABLED" value="false" />
+      <env name="OPENAI_API_KEY" value="not-configured" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

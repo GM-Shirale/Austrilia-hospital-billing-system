@@ -1,0 +1,75 @@
+### IntelliJ HTTP client: open this file and click the green arrows (backend must be running).
+### 1) Login (Sydney Harbour Private). The token is stored for the following requests.
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+X-Tenant-ID: 11111111-1111-4111-8111-111111111111
+
+{ "username": "admin", "password": "Admin@123" }
+
+> {% client.global.set("token", response.body.accessToken); %}
+
+### 2) Search patients (paged, sorted)
+GET http://localhost:8080/api/v1/patients?q=john&page=0&size=5&sort=lastName,asc
+Authorization: Bearer {{token}}
+
+### 3) Validation error example -> RFC 7807 body with itemised field errors
+POST http://localhost:8080/api/v1/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "firstName": "", "lastName": "Test", "dob": "2090-01-01", "gender": "FEMALE", "medicareNo": "2123456081" }
+
+### 4) Tenant isolation: a Sydney token cannot read Melbourne data -> 403 TENANT_ACCESS_DENIED
+GET http://localhost:8080/api/v1/patients
+Authorization: Bearer {{token}}
+X-Tenant-ID: 22222222-2222-4222-8222-222222222222
+
+### 5) Admit patient 1 (Emily Johnson, Bupa GOLD) with doctor 1 into bed 1
+POST http://localhost:8080/api/v1/admissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "patientId": 1, "doctorId": 1, "admissionTypeId": 2, "financialClass": "PRIVATE", "careSetting": "IPD", "diagnosis": "Chest pain", "roomId": 1 }
+
+> {% client.global.set("admissionId", response.body.admission.id); %}
+
+### 6) Dashboard
+GET http://localhost:8080/api/v1/dashboard/summary
+Authorization: Bearer {{token}}
+
+### 7) Self-registration (public): creates a BILLING_OFFICER for Sydney and returns a JWT
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+X-Tenant-ID: 11111111-1111-4111-8111-111111111111
+
+{ "hospitalId": "11111111-1111-4111-8111-111111111111", "fullName": "Olivia Bennett", "username": "olivia.bennett",
+  "email": "olivia.bennett@harbour.example.au", "password": "Olivia@2026", "confirmPassword": "Olivia@2026",
+  "role": "BILLING_OFFICER" }
+
+### 8) Weekly roster of doctor 3 (Dr Priya Sharma)
+GET http://localhost:8080/api/v1/doctors/3/schedules
+Authorization: Bearer {{token}}
+
+### 9) Record a specialist consultation on the admission (billed with MBS item 116)
+POST http://localhost:8080/api/v1/admissions/{{admissionId}}/consultations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "doctorId": 3, "consultationType": "SPECIALIST_REVIEW", "notes": "Reviewed ECG and troponin" }
+
+### 10) Discharge: bed -> AVAILABLE, bill generated and lines locked
+POST http://localhost:8080/api/v1/admissions/{{admissionId}}/discharge
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+### 11) The bill created at discharge
+GET http://localhost:8080/api/v1/admissions/{{admissionId}}/bills
+Authorization: Bearer {{token}}
+
+> {% client.global.set("billId", response.body.content[0].id); %}
+
+### 12) Tax invoice / discharge summary data (what the PDF prints)
+GET http://localhost:8080/api/v1/bills/{{billId}}/invoice
+Authorization: Bearer {{token}}

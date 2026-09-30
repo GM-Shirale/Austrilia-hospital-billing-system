@@ -1,0 +1,23 @@
+# Production profile: real claims gateway, secrets ONLY from environment variables.
+app:
+  claims:
+    gateway:
+      base-url: ${CLAIMS_GATEWAY_URL}
+      api-key: ${CLAIMS_GATEWAY_API_KEY}
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+    registration:
+      # Staff accounts are provisioned by an administrator in production (no self-sign-up as ADMIN).
+      enabled: ${REGISTRATION_ENABLED:false}
+      allowed-roles: RECEPTIONIST,DOCTOR,BILLING_OFFICER,LAB,PHARMACY
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+logging:
+  level:
+    com.hospital.billing: INFO

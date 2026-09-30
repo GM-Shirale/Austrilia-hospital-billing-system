@@ -1,0 +1,15 @@
+# Activate with: --spring.profiles.active=redis   (needs docker compose up redis)
+spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+management:
+  health:
+    redis:
+      enabled: true

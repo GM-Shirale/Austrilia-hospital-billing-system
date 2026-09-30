@@ -1,0 +1,42 @@
+# Production-style deployment used by the CD pipeline: pulls the images built and pushed by
+# GitHub Actions (ghcr.io). All secrets come from the server's .env file, never from git.
+#   docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hospital_billing
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d hospital_billing"]
+      interval: 10s
+      retries: 10
+
+  backend:
+    image: ${IMAGE_REGISTRY:-ghcr.io/your-github-user}/hospital-billing-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/hospital_billing
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AI_ENABLED: ${AI_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-not-configured}
+      CORS_ALLOWED_ORIGINS: ${PUBLIC_URL}
+
+  frontend:
+    image: ${IMAGE_REGISTRY:-ghcr.io/your-github-user}/hospital-billing-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on: [backend]
+    ports:
+      - "80:80"
+
+volumes:
+  pgdata:
