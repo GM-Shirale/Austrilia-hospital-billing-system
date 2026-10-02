@@ -21,24 +21,34 @@ import java.util.List;
 
 public final class PatientDtos {
 
-    private static final String AU_PHONE = "^(\\+61|0)[2-478]\\d{8}$";
-
+    private static final String AU_PHONE = "^04[0-9]{8}$";
     private PatientDtos() {
     }
 
     public record PatientRequest(
-            @NotBlank @Size(max = 60) String firstName,
-            @NotBlank @Size(max = 60) String lastName,
-            @NotNull @Past LocalDate dob,
+            @NotBlank @Size(max = 60)
+            String firstName,
+            @NotBlank @Size(max = 60)
+            String lastName,
+            @NotNull @Past
+            LocalDate dob,
             @NotNull Gender gender,
-            @Pattern(regexp = AU_PHONE, message = "must be an Australian phone number") String phone,
-            @Email @Size(max = 120) String email,
-            @Size(max = 200) String address,
-            @Size(max = 80) String suburb,
-            @Pattern(regexp = "^(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)$", message = "must be an Australian state code") String state,
-            @Pattern(regexp = "^\\d{4}$", message = "must be a 4-digit postcode") String postcode,
-            @ValidMedicareNumber String medicareNo,
-            @Min(1) @Max(9) Short medicareIrn,
+            @Pattern(regexp = AU_PHONE, message = "must be an Australian phone number")
+            String phone,
+            @Email @Size(max = 120)
+            String email,
+            @Size(max = 200)
+            String address,
+            @Size(max = 80)
+            String suburb,
+            @Pattern(regexp = "^(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)$", message = "must be an Australian state code")
+            String state,
+            @Pattern(regexp = "^\\d{4}$", message = "must be a 4-digit postcode")
+            String postcode,
+            @ValidMedicareNumber
+            String medicareNo,
+            @Min(1) @Max(9)
+            Short medicareIrn,
             PatientStatus status,
             @Valid List<ContactRequest> contacts) {
     }
