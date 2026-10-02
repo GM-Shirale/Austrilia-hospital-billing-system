@@ -30,7 +30,7 @@ export const session = {
  * - On 401 it clears the session and notifies the AuthContext (redirect to login).
  */
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1',
   headers: { 'Content-Type': 'application/json' },
   timeout: 20000,
 });
@@ -55,7 +55,7 @@ client.interceptors.response.use(
       message:
         body.message ||
         body.detail ||
-        (status ? `Request failed (${status})` : 'Cannot reach the server. Is the backend running on port 8080?'),
+        (status ? `Request failed (${status})` : 'Cannot reach the server. Is the backend running on port 8081?'),
       details: Array.isArray(body.details) ? body.details : [],
       correlationId: body.correlationId,
     };
